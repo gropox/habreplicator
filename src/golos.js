@@ -56,33 +56,32 @@ async function getContent(permlink) {
 }
 
 async function testComment(parent_author, parent_permlink, author, permlink, title, body, json) {
-    log.info("broadcast comment");
-    log.info("  parent_author = " + parent_author);
-    log.info("  parent_permlink = " + parent_permlink);
-    log.info("  author = " + author);
-    log.info("  permlink = " + permlink);
-    log.info("  title = " + title);
-    log.info("  body = " + body);
-    log.info("  json = " + json);
+    log.debug("broadcast comment");
+    log.debug("  parent_author = " + parent_author);
+    log.debug("  parent_permlink = " + parent_permlink);
+    log.debug("  author = " + author);
+    log.debug("  permlink = " + permlink);
+    log.debug("  title = " + title);
+    log.debug("  body = " + body);
+    log.debug("  json = " + json);
 }
 
 async function testCommentOptions(author, permlink, max_accepted_payout, percent_steem_dollars, allow_votes, allow_curation_rewards, extensions) {
-    log.info("broadcast comment_options");
-    log.info("  author = " + author);
-    log.info("  permlink = " + permlink);
-    log.info("  max_accepted_payout = " + max_accepted_payout);
-    log.info("  percent_steem_dollars = " + percent_steem_dollars);
-    log.info("  allow_votes = " + allow_votes);
-    log.info("  allow_curation_rewards = " + allow_curation_rewards);
-    log.info("  extensions = " + extensions);
+    log.debug("broadcast comment_options");
+    log.debug("  author = " + author);
+    log.debug("  permlink = " + permlink);
+    log.debug("  max_accepted_payout = " + max_accepted_payout);
+    log.debug("  percent_steem_dollars = " + percent_steem_dollars);
+    log.debug("  allow_votes = " + allow_votes);
+    log.debug("  allow_curation_rewards = " + allow_curation_rewards);
+    log.debug("  extensions = " + extensions);
     
-    log.info("====\n\n\n");
+    log.debug("====\n\n\n");
 }
 
 module.exports.post = async function(rssItem) {
     let success = false;
     try {
-        log.debug("post " + rssItem.title);
         var json = JSON.stringify({
             tags:[NEWS_TAG],
             image:[rssItem.getImage()],
@@ -95,25 +94,35 @@ module.exports.post = async function(rssItem) {
         let content = await getContent(permlink);
         
         if(content.permlink == permlink) {
-            log.info("already posted " + permlink);
+            log.warn("already posted " + permlink);
+            rssItem.posted = true;
+            db.save(rssItem);            
             return;
         }
 
-        testComment("", NEWS_TAG, USERID, permlink, 
+        testComment("", rssItem.tag, USERID, permlink, 
             rssItem.title, rssItem.convert(), json);
-        await steem.broadcast.commentAsync(POSTING_KEY, "", NEWS_TAG, USERID, permlink, 
-            rssItem.title, rssItem.convert(), json, function(e, m)  {
-                log.trace(e);
-                log.trace(m);
-                success = (e == null);
-                //set option
-                if(success) {
-                    testCommentOptions(USERID, permlink, 0, 10000, true, true, []);
-                    steem.broadcast.commentOptionsAsync(POSTING_KEY, USERID, permlink, "0.000 GBG", 10000, true, true, []);  
-                    rssItem.posted = true;
-                    db.save(rssItem);                
-                } 
-            });
+        if(global.settings.broadcast) {
+            log.info("broadcast post " + rssItem.title);
+            
+            await steem.broadcast.commentAsync(POSTING_KEY, "", rssItem.tag, USERID, permlink, 
+                rssItem.title, rssItem.convert(), json, function(e, m)  {
+                    log.trace(e);
+                    log.trace(m);
+                    success = (e == null);
+                    //set option
+                    if(success) {
+                        testCommentOptions(USERID, permlink, 0, 10000, true, true, []);
+                        steem.broadcast.commentOptionsAsync(POSTING_KEY, USERID, permlink, "0.000 GBG", 10000, true, true, []);  
+                        rssItem.posted = true;
+                        db.save(rssItem);                
+                    } 
+                });
+        } else {
+            log.info("no broadcasting, make posted " + rssItem.title);
+            rssItem.posted = true;
+            db.save(rssItem);                
+        }
         return success;
     } catch(e) {
         log.error(e);
@@ -214,7 +223,9 @@ function slug(text) {
     return speakingurl(text.replace(/[<>]/g, ''), {truncate: 128})
 }
 
-createPermlink({
-    guid:"https://geektimes.ru/post/", 
-    title: "Привет, я здесь и там"}
-).then( (m) => log.debug(m) );
+async function test() {
+    let accounts = await steem.api.getKeyReferencesAsync(["GLS711sHr889Etr7FhwND4dt7Qf9krHEprqp5qZgJvw3oqMtNxMBk"]);
+    log.debug("accounts = " + JSON.stringify(accounts)); 
+} 
+
+test();

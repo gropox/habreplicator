@@ -5,6 +5,7 @@ module.exports = function(item) {
     this.date = item.date;
     this.author = item.author;
     this.permalink = item.permalink;
+    this.tag = item.tag;
 
     if(typeof item.posted == "undefined") {
         this.posted = false;
@@ -23,8 +24,8 @@ module.exports = function(item) {
     
     this.convert = function() {
         return "<html><body><div class=\"text-justify\">"
-            + "Автор: " + this.author 
-            + "<br/>" + "Источник: " + this.guid
+            + "Автор: " + this.author + "  " 
+            + "<br/>" + "Источник: " + this.guid + "  "
             + "<br/>" + this.summary.replace(/&rarr;/,"")
             + "</div></body></html>";
     }

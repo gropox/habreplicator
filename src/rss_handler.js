@@ -5,8 +5,13 @@ var RssItem = require("./rss_item.js");
 var fs = require('fs');
 var golos = require('./golos');
 
-module.exports.handler = function() {
+module.exports.handler = function(tag) {
     var feedparser = new FeedParser();
+
+    if(typeof tag == "undefined") {
+        throw "Tag is required";
+    }
+    feedparser.golos_tag = tag;
 
     feedparser.on('error', function (error) {
         log.error("unable to fetch rss");
@@ -24,6 +29,7 @@ module.exports.handler = function() {
             let rssItem = await db.get(item.guid);
             if(null == rssItem) {
                 rssItem = new RssItem(item);
+                rssItem.tag = feedparser.golos_tag;
                 log.trace("save");
                 await db.save(rssItem);
             }
