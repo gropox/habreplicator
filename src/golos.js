@@ -62,8 +62,8 @@ async function testComment(parent_author, parent_permlink, author, permlink, tit
     log.debug("  author = " + author);
     log.debug("  permlink = " + permlink);
     log.debug("  title = " + title);
-    log.debug("  body = " + body);
-    log.debug("  json = " + json);
+    log.trace("  body = " + body);
+    log.debug("  json = " + JSON.stringify(json));
 }
 
 async function testCommentOptions(author, permlink, max_accepted_payout, percent_steem_dollars, allow_votes, allow_curation_rewards, extensions) {
@@ -130,10 +130,7 @@ module.exports.post = async function(rssItem) {
     }        
 }
 
-// copypaste from https://gist.github.com/tamr/5fb00a1c6214f5cab4f6
-// (it have been modified: ий > iy and so on)
-// this have been done beecause we cannot use special symbols in url (`` and '')
-// and url seems to be the only source of thruth
+// copypaste from tolstoy
 var d = /\s+/g,
     //rus = "щ  ш   ч   ц   ю   ю   я   я  ые   ий  ё   ё   ж   ъ   э   ы   а   б   в   г   д   е   з   и   й   к   л   м   н   о   п   р   с   т   у   ф   х   х   ь".split(d),
     //eng = "sch    sh  ch  cz  yu  ju  ya  q  yie  iy  yo  jo  zh  w   ye  y   a   b   v   g   d   e   z   i   yi  k   l   m   n   o   p   r   s   t   u   f   x   h   j".split(d);
@@ -207,18 +204,6 @@ async function createPermlink(rssItem) {
     return permlink;
 }
 
-function makeTrail()
-{
-    var text = "";
-    var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
-
-    for( var i=0; i < 5; i++ )
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    return text;
-}
-
-
 function slug(text) {
     return speakingurl(text.replace(/[<>]/g, ''), {truncate: 128})
 }
@@ -228,4 +213,4 @@ async function test() {
     log.debug("accounts = " + JSON.stringify(accounts)); 
 } 
 
-test();
+//test();

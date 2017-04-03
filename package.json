@@ -10,6 +10,9 @@
     "type": "git",
     "url": "git+https://github.com/gropox/habreplicator.git"
   },
+  "bin": {
+    "habreplicator": "index.js"
+  },
   "keywords": [
     "golos",
     "bot"
@@ -17,10 +20,10 @@
   "dependencies" : { 
         "nedb" : ">=1.8.0",
         "steem" : ">=0.5.1",
-        "speakingurl" : ">=18.0.0",
+        "speakingurl" : ">=13.0.0",
         "request" : ">=2.81.0",
         "feedparser" : ">=2.1.0",
-        "debug" : ">=2.6.3",
+        "debug" : ">=2.6.3"
    },
   "author": "gropox",
   "license": "MIT",

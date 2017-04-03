@@ -1,8 +1,14 @@
+
+module.exports.runtime = {
+    dl : 0
+}
+
+
 var fs = require("fs");
-var log = require("./logger").getLogger(__filename, 12);
 
 const HOME = require('os').homedir();
 const CONFIG_FILE = HOME + "/.habreplicator.js";
+
 
 module.exports.settings = {
     "golos_host" : "https://golos.io",
@@ -20,11 +26,11 @@ function init() {
         let sets = JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8"));
         module.exports.settings = sets;       
     } catch(e) {
-        log.warn("unable to read config (" + CONFIG_FILE + ")");
+        console.warn("unable to read config (" + CONFIG_FILE + ")");
         try {
             fs.writeFileSync(CONFIG_FILE, JSON.stringify(module.exports.settings, null, 4), "utf8");
         } catch(e) {
-            log.error("unable to create dummy config (" + CONFIG_FILE + ")");
+            console.error("unable to create dummy config (" + CONFIG_FILE + ")");
         }
     }
 }

@@ -25,12 +25,13 @@ module.exports.handler = function(tag) {
         var item;
         var doPost = true;
         while (item = stream.read()) {
-            log.trace("\n\n\n==== got rss item > " + JSON.stringify(item));
+            log.debug("got rss item = " + item.guid);
+            log.trace(JSON.stringify(item));
             let rssItem = await db.get(item.guid);
             if(null == rssItem) {
                 rssItem = new RssItem(item);
                 rssItem.tag = feedparser.golos_tag;
-                log.trace("save");
+                log.debug("\tsave");
                 await db.save(rssItem);
             }
             //Post only one Item
@@ -41,6 +42,7 @@ module.exports.handler = function(tag) {
                 doPost = false;
             }
         }
+
     });
     
     return feedparser;

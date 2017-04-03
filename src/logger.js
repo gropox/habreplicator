@@ -1,6 +1,5 @@
+var global = require("./global");
 var debug = require("debug");
-
-
 
 let Logger = function(source, level) {
         
@@ -12,9 +11,20 @@ let Logger = function(source, level) {
     this._inf = debug("habreplicator:inf:" + this.s);
     this._wrn = debug("habreplicator:wrn:" + this.s);
     this._err = debug("habreplicator:err:" + this.s);
-    
-    debug.enable("habreplicator:err* habreplicator:wrn* habreplicator:inf*");
 
+    if(typeof process.env.DEBUG == "undefined") {
+        let dbgNamespace = "habreplicator:err* habreplicator:wrn* habreplicator:inf*";
+        if(global.runtime.dl>0) {
+            dbgNamespace = dbgNamespace + " habreplicator:dbg*";
+        }       
+        if(global.runtime.dl>1) {
+            dbgNamespace = dbgNamespace + " habreplicator:trc*";
+        }
+        console.log("enable " + dbgNamespace);
+        debug.enable(dbgNamespace);
+
+    }
+    
     this.trace = function(msg) {
         this._trc(msg);
     }
