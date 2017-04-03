@@ -18,7 +18,7 @@ var lastRetrievedProps = 0;
 
 const USERID = global.settings.userid;
 const POSTING_KEY = global.settings.postingKey;
-const NEWS_TAG = "geektimes";
+const NEWS_TAG = "ru--obrazovanie";
 var props = {};
 
 /** holt properties */
@@ -82,12 +82,12 @@ async function testCommentOptions(author, permlink, max_accepted_payout, percent
 module.exports.post = async function(rssItem) {
     let success = false;
     try {
-        var json = JSON.stringify({
-            tags:[NEWS_TAG],
+        var json = {
+            tags:[rssItem.tag, NEWS_TAG],
             image:[rssItem.getImage()],
             links:[rssItem.permalink],
             app:"habreplicator",
-            format:"markdown"});
+            format:"html"};
 
         var permlink = await createPermlink(rssItem);
 

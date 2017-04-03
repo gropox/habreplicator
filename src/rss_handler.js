@@ -1,6 +1,6 @@
 var db = require("./db");
 var FeedParser = require('feedparser');
-var log = require("./logger").getLogger(__filename, 6);
+var log = require("./logger").getLogger(__filename);
 var RssItem = require("./rss_item.js");
 var fs = require('fs');
 var golos = require('./golos');
@@ -19,11 +19,11 @@ module.exports.handler = function(tag) {
     });
      
     feedparser.on('readable', async function () {
-        // This is where the action is! 
-        var stream = this; // `this` is `feedparser`, which is a stream 
-        var meta = this.meta; // **NOTE** the "meta" is always available in the context of the feedparser instance 
-        var item;
 
+        var stream = this; 
+        var meta = this.meta; 
+        var item;
+        var doPost = true;
         while (item = stream.read()) {
             log.trace("\n\n\n==== got rss item > " + JSON.stringify(item));
             let rssItem = await db.get(item.guid);
@@ -33,10 +33,12 @@ module.exports.handler = function(tag) {
                 log.trace("save");
                 await db.save(rssItem);
             }
-            if(!rssItem.posted) {
+            //Post only one Item
+            if(doPost && !rssItem.posted) {
                 log.info("post item " + rssItem.guid);
                 writeDebug(rssItem);
                 await golos.post(rssItem);
+                doPost = false;
             }
         }
     });

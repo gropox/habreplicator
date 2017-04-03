@@ -1,0 +1,31 @@
+{
+  "name": "habreplicator",
+  "version": "1.0.0",
+  "description": "Posts habrahabr & geektimes RSS to golos.io",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gropox/habreplicator.git"
+  },
+  "keywords": [
+    "golos",
+    "bot"
+  ],
+  "dependencies" : { 
+        "nedb" : ">=1.8.0",
+        "steem" : ">=0.5.1",
+        "speakingurl" : ">=18.0.0",
+        "request" : ">=2.81.0",
+        "feedparser" : ">=2.1.0",
+        "debug" : ">=2.6.3",
+   },
+  "author": "gropox",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gropox/habreplicator/issues"
+  },
+  "homepage": "https://github.com/gropox/habreplicator#readme"
+}
