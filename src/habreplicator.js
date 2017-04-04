@@ -1,6 +1,9 @@
-var rssh = require("./rss_handler");
+require("./logger");
+var RssHandler = require("./rss_handler").RssHandler;
 var request = require('request'); // for fetching the feed 
-var log = require("./logger").getLogger(__filename, 6);
+var db = require("./db");
+var golos = require('./golos');
+var log = require("./logger").getLogger(__filename);
 
 var global = require("./global");
 
@@ -19,11 +22,20 @@ module.exports.run = async function() {
         readRss(global.settings.geek_rss, "geektimes");
         readRss(global.settings.habr_rss, "habrahabr");
         
+        //получаем все записи, которые еще не отправлены и постим
+        let items = await db.getUnpostedItems();
+        if(items && items.length && items.length > 0) {
+            log.debug("got unposted items " + items.length);
+            log.info("post item " + items[0].guid);
+            await golos.post(items[0]);
+        }        
+        
         await sleep(DELAY_MS);
     }    
 }
 
 function readRss(url, tag) {
+    let handler = new RssHandler(tag);
     request.get(url)
         .on("error", function(error){ log.error(error) })
         .on("response", function(resp) {
@@ -31,7 +43,7 @@ function readRss(url, tag) {
             if (resp.statusCode !== 200) {
                 this.emit('error', log.error("got wrong statusCode " + resp.statusCode ));
             } else {
-                this.pipe(rssh.handler(tag));
+                this.pipe(handler);
             }
         });
 }

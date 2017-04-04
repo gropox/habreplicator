@@ -1,7 +1,7 @@
 var nedb = require("nedb");
 var global = require("./global");
+var log = require("./logger").getLogger(__filename);
 var RssItem = require("./rss_item");
-var log = require("./logger").getLogger(__filename, 12);
 
 const HOME = global.settings.dbdir;
 const DBFILE = HOME + "/habreplicator_fetched.db";
@@ -9,7 +9,7 @@ const DBFILE = HOME + "/habreplicator_fetched.db";
 var dbFetched = new nedb({filename : DBFILE, autoload : true});
 
 module.exports.get = async function(guid) {
-  log.trace("get(" + guid + ")");
+  log.debug("get(" + guid + ")");
   return new Promise(resolve => {
     dbFetched.find({ guid : guid }, function(err, docs) {
         if(err) {
@@ -28,14 +28,15 @@ module.exports.get = async function(guid) {
   });
 }
 
-module.exports.getAll = async function() {
-  log.trace("getAll");
+module.exports.getUnpostedItems = async function() {
+  log.debug("getUnpostedItems");
   return new Promise(resolve => {
-    dbAccounts.find({}, function(err, docs) {
+    dbFetched.find({posted:false}, function(err, docs) {
         if(err) {
             log.error("err + " + err);
             throw err;
         }
+        log.debug("got docs " + docs.length);
         let ret = [];
         for(let i = 0; i < docs.length; i++) {
             let item = new RssItem(docs[i]);

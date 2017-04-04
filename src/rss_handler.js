@@ -1,51 +1,54 @@
+
+
+
 var db = require("./db");
 var FeedParser = require('feedparser');
 var log = require("./logger").getLogger(__filename);
 var RssItem = require("./rss_item.js");
 var fs = require('fs');
-var golos = require('./golos');
 
-module.exports.handler = function(tag) {
-    var feedparser = new FeedParser();
+class RssHandler extends FeedParser {
 
-    if(typeof tag == "undefined") {
-        throw "Tag is required";
-    }
-    feedparser.golos_tag = tag;
-
-    feedparser.on('error', function (error) {
-        log.error("unable to fetch rss");
+    constructor(tag) {
+        super();
+        log.debug("called constructor");
         
-    });
-     
-    feedparser.on('readable', async function () {
-
-        var stream = this; 
-        var meta = this.meta; 
-        var item;
-        var doPost = true;
-        while (item = stream.read()) {
-            log.debug("got rss item = " + item.guid);
-            log.trace(JSON.stringify(item));
-            let rssItem = await db.get(item.guid);
-            if(null == rssItem) {
-                rssItem = new RssItem(item);
-                rssItem.tag = feedparser.golos_tag;
-                log.debug("\tsave");
-                await db.save(rssItem);
-            }
-            //Post only one Item
-            if(doPost && !rssItem.posted) {
-                log.info("post item " + rssItem.guid);
-                writeDebug(rssItem);
-                await golos.post(rssItem);
-                doPost = false;
-            }
+        if(typeof tag == "undefined") {
+            throw "Tag is required";
         }
+        log.debug("got tag " + tag);
+        this.tag = tag;
+        
+        this.oncePosted = false;
+        
+        this.retrieved = 0;
+        this.newItems = 0;
 
-    });
-    
-    return feedparser;
+        log.debug("setup handlers");
+        this.on('error', function (error) {
+            log.error("unable to fetch rss");
+        });
+         
+        this.on('readable', async function () {
+            var stream = this; 
+            var meta = this.meta; 
+            var item;
+            var doPost = true;
+            while (item = stream.read()) {
+                log.debug("got rss item = " + item.guid);
+                log.trace(JSON.stringify(item));
+                let rssItem = await db.get(item.guid);
+                this.retrieved = this.retrieved + 1;
+                if(null == rssItem) {
+                    this.newItems = this.newItems + 1;
+                    rssItem = new RssItem(item);
+                    rssItem.tag = this.tag;
+                    log.trace("\tsave " + item.guid);
+                    db.save(rssItem);
+                }
+            }
+        });
+    }
 }
 
 function writeDebug(i) {
@@ -58,6 +61,6 @@ function writeDebug(i) {
     });         
 }
 
-
+module.exports.RssHandler = RssHandler;
 
 

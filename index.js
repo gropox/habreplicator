@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-
+"use strict";
 
 var global = require("./src/global");
 var debug = require("debug");
@@ -17,7 +17,6 @@ process.argv.forEach(function (val, index, array) {
 });
 
 global.runtime.dl = dl;
-
 require("./src/habreplicator").run();
 
 

@@ -2,7 +2,7 @@ var global = require("./global");
 var debug = require("debug");
 
 let Logger = function(source, level) {
-        
+    console.log("construct logger for " + source);    
     let p = source.split(/[\/\\]/);
     this.s = p[p.length-1].split(".")[0];
     
@@ -45,7 +45,7 @@ let Logger = function(source, level) {
         this._err(msg);
     }
 }    
-
+new Logger("f",0);
 module.exports.getLogger = function (f,l) {
     return new Logger(f,l);
 }
