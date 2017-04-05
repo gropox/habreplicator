@@ -110,6 +110,8 @@ module.exports.post = async function(rssItem) {
                     log.trace(e);
                     log.trace(m);
                     success = (e == null);
+                    log.error("POSTING ERROR: " + e);
+
                     //set option
                     if(success) {
                         testCommentOptions(USERID, permlink, 0, 10000, true, true, []);

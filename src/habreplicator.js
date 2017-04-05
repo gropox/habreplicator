@@ -16,22 +16,20 @@ const DELAY_MS = 1000 * 60 * 30;
     //post items
 
 module.exports.run = async function() {    
-    while(true) {
-        log.info("fetch rss");
-        
-        readRss(global.settings.geek_rss, "geektimes");
-        readRss(global.settings.habr_rss, "habrahabr");
-        
-        //получаем все записи, которые еще не отправлены и постим
-        let items = await db.getUnpostedItems();
-        if(items && items.length && items.length > 0) {
-            log.debug("got unposted items " + items.length);
-            log.info("post item " + items[0].guid);
-            await golos.post(items[0]);
-        }        
-        
-        await sleep(DELAY_MS);
-    }    
+    log.info("fetch rss");
+    
+    readRss(global.settings.geek_rss, "geektimes");
+    readRss(global.settings.habr_rss, "habrahabr");
+    
+    //получаем все записи, которые еще не отправлены и постим
+    let items = await db.getUnpostedItems();
+    if(items && items.length && items.length > 0) {
+        log.debug("got unposted items " + items.length);
+        log.info("post item " + items[0].guid);
+        golos.post(items[0]);
+        await sleep(30*1000); //let golos do its work
+    }        
+    process.exit(123);
 }
 
 function readRss(url, tag) {
