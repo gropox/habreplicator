@@ -83,7 +83,7 @@ module.exports.post = async function(rssItem) {
     let success = false;
     try {
         var json = {
-            tags:[rssItem.tag, NEWS_TAG],
+            tags:[rssItem.tag],
             image:[rssItem.getImage()],
             links:[rssItem.permalink],
             app:"habreplicator",

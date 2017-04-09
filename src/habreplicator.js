@@ -20,6 +20,7 @@ module.exports.run = async function() {
     
     readRss(global.settings.geek_rss, "geektimes");
     readRss(global.settings.habr_rss, "habrahabr");
+    await sleep(30*1000); //let golos do its work
     
     //получаем все записи, которые еще не отправлены и постим
     let items = await db.getUnpostedItems();
