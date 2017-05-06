@@ -106,20 +106,14 @@ module.exports.post = async function(rssItem) {
             log.info("broadcast post " + rssItem.title);
             
             await steem.broadcast.commentAsync(POSTING_KEY, "", rssItem.tag, USERID, permlink, 
-                rssItem.title, rssItem.convert(), json, function(e, m)  {
-                    log.trace(e);
-                    log.trace(m);
-                    success = (e == null);
-                    log.error("POSTING ERROR: " + e);
+                rssItem.title, rssItem.convert(), json);
 
-                    //set option
-                    if(success) {
-                        testCommentOptions(USERID, permlink, 0, 10000, true, true, []);
-                        steem.broadcast.commentOptionsAsync(POSTING_KEY, USERID, permlink, "0.000 GBG", 10000, true, true, []);  
-                        rssItem.posted = true;
-                        db.save(rssItem);                
-                    } 
-                });
+            testCommentOptions(USERID, permlink, 0, 10000, true, true, []);
+            
+            steem.broadcast.commentOptionsAsync(POSTING_KEY, USERID, permlink, "0.000 GBG", 10000, true, true, []);  
+            rssItem.posted = true;
+            db.save(rssItem);                
+            
         } else {
             log.info("no broadcasting, make posted " + rssItem.title);
             rssItem.posted = true;
@@ -131,6 +125,23 @@ module.exports.post = async function(rssItem) {
         return false;
     }        
 }
+
+
+module.exports.getExceptionCause = function(e) {
+    if(e.cause && e.cause.payload && e.cause.payload.error) {
+        let m = e.cause.payload.error.message; 
+        if(m) {
+            let am = m.split("\n");
+            m = am[0];
+            for(let i = 1; i < am.length && i < 3; i++) {
+                m += ": " + am[i];
+            }
+            return m;
+        }
+    }
+    return e;
+}
+
 
 // copypaste from tolstoy
 var d = /\s+/g,
