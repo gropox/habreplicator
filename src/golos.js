@@ -218,7 +218,7 @@ async function createPermlink(rssItem) {
 }
 
 function slug(text) {
-    return speakingurl(text.replace(/[<>]/g, ''), {truncate: 128})
+    return speakingurl(text.replace(/[<>_]/g, ''), {truncate: 128})
 }
 
 async function test() {
