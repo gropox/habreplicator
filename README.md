@@ -1,29 +1,8 @@
-# README #
+# Хабрепликатор #
 
-Копирует заголовки статей habrahabr и geektimes в голос.
+Копирует заголовки статей habrahabr и geektimes в голос. Для этого скрипт читает RSS ленту habrahabr.ru и geektimes.ru раз в пол часа и сабмитит пост в блокчейне голоса. 
 
-### What is this repository for? ###
+Для работы требуется node >= 7.0 и библиотека steem-js.
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+Лицензия MIT
 
-### How do I get set up? ###
-
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
